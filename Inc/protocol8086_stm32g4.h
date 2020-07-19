@@ -14,6 +14,8 @@
 #define CMD_BKOK	0x06
 #define CMD_HALT	0x07
 #define CMD_HTOK	0x08
+#define CMD_STAT	0x09
+#define CMD_STAT_RSP	0x0a
 
 #define PWR_MONITOR		1
 #define DVR_RECORDER	2

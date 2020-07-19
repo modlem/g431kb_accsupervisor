@@ -249,13 +249,13 @@ uint8_t isJetsonAlive()
 
 void relayProcess()
 {
-#if 0
 	RTC_TimeTypeDef theTime;
 	RTC_DateTypeDef theDate;
 
+	// Always call Date and Time things together; mandatory by the API
 	HAL_RTC_GetDate(&hrtc, &theDate, RTC_FORMAT_BIN);
 	HAL_RTC_GetTime(&hrtc, &theTime, RTC_FORMAT_BIN);
-#endif
+
 	if(adcStatus & V_BAT)
 	{
 		//adcStatus &= ~(V_CRITICAL);
@@ -275,7 +275,7 @@ void relayProcess()
 				{
 					// TODO: We shouldn't use HAL_GetTick - it DOESN'T tick after entering low power mode.
 					// TODO: Use RTC GetTime function instead.
-					if(cmd_state == CMD_BKUP_SENT && lastBkupRqstSent > HAL_GetTick())
+					if(cmd_state == CMD_BKUP_SENT && lastBkupRqstSent > theTime.Seconds)
 					{
 						// Do nothing; wait for 5 second...
 					}
@@ -284,7 +284,8 @@ void relayProcess()
 						standbyPending = 1;
 						sendCmd(CMD_BKUP, PWR_MONITOR, 0, 0, 0);
 						cmd_state = CMD_BKUP_SENT;
-						lastBkupRqstSent = HAL_GetTick() + 5000;
+						lastBkupRqstSent = theTime.Seconds + 5;
+						if(lastBkupRqstSent >= 60) lastBkupRqstSent -= 60;
 						bkupRqstSentCnt++;
 						// No response -> Open relay
 						if(bkupRqstSentCnt > 10) relayOpen();

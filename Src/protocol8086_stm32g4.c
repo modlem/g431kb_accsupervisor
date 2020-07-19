@@ -10,7 +10,7 @@
 #include <stddef.h>
 
 static enum UART_STATE uartState;
-void (*parseDoneCallBack)(uint8_t data1, uint8_t data2, uint8_t data3, uint8_t data4, uint8_t data5) = NULL;
+static void (*parseDoneCallBack)(uint8_t data1, uint8_t data2, uint8_t data3, uint8_t data4, uint8_t data5) = NULL;
 void (*uartSend)(uint8_t *buf, uint8_t szBuf) = NULL;
 
 static int parserState = 0;
@@ -29,7 +29,11 @@ void _encapsulateData(uint8_t *buf8, uint8_t one, uint8_t two, uint8_t three, ui
 
 void _parseDone(uint8_t data1, uint8_t data2, uint8_t data3, uint8_t data4, uint8_t data5)
 {
+	extern uint8_t adcStatus;
+	extern uint32_t adc_vbat;
+	extern uint32_t adc_vacc;
 	uint8_t sendBuf[8] = {0,};
+
 	if(parseDoneCallBack != NULL) parseDoneCallBack(data1, data2, data3, data4, data5);
 	else
 	{
@@ -60,6 +64,12 @@ void _parseDone(uint8_t data1, uint8_t data2, uint8_t data3, uint8_t data4, uint
 		case CMD_HALT:
 			break;
 		case CMD_HTOK:
+			break;
+		case CMD_STAT:
+			_encapsulateData(sendBuf, CMD_STAT_RSP, PWR_MONITOR, adcStatus, (uint8_t)(adc_vbat * 183 / 4096), (uint8_t)(adc_vacc * 183 / 4096));
+			if(uartSend != NULL) uartSend(sendBuf, 8);
+			break;
+		case CMD_STAT_RSP:
 			break;
 		default:
 			break;
