@@ -213,6 +213,7 @@ void adcProcess()
 	}
 
 	adcStatus = tmpState;
+	sendCmd(CMD_STAT_RSP, PWR_MONITOR, adcStatus, (uint8_t)(adc_vbat * 183 / 4096), (uint8_t)(adc_vacc * 183 / 4096));
 	//sendCmd(((adc_vacc >> 8) & 0xff), (adc_vacc & 0xff), ((adc_vbat >> 8) & 0xff), (adc_vbat & 0xff), 0);
 }
 
